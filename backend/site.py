@@ -1,26 +1,39 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import json
+from flask import Flask, request, jsonify
 
-class MyHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/api/data':
-            data = {
-                'message': 'Привет от бэкенда!',
-                'items': ['Python', 'JavaScript', 'HTTP-сервер', 'HTML']
-            }
-            response = json.dumps(data).encode('utf-8')
+app = Flask(__name__)
 
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            self.wfile.write(response)
-        else:
-            self.send_response(404)
-            self.end_headers()
+# Тестовые учётные данные
+VALID_USERNAME = "admin"
+VALID_PASSWORD = "password123"
+SECRET_TOKEN = "my-super-secret-token-12345"
+
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    creds = request.get_json(silent=True) or {}
+    username = creds.get('username')
+    password = creds.get('password')
+
+    if username == VALID_USERNAME and password == VALID_PASSWORD:
+        return jsonify({'token': SECRET_TOKEN}), 200
+    return jsonify({'error': 'Неверный логин или пароль'}), 401
+
+
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    auth_header = request.headers.get('Authorization')
+
+    if auth_header != f'Bearer {SECRET_TOKEN}':
+        return jsonify({'error': 'Доступ запрещен. Требуется авторизация.'}), 401
+
+    return jsonify({
+        'message': 'Привет от бэкенда! (Данные защищены)',
+        'items': ['Python', 'JavaScript', 'HTTP-сервер', 'HTML', 'Авторизация']
+    }), 200
+
 
 if __name__ == '__main__':
-    server = HTTPServer(('localhost', 5000), MyHandler)
     print('Сервер запущен на http://localhost:5000')
     print('Доступен эндпоинт: http://localhost:5000/api/data')
-    server.serve_forever()
+    print('Логин: admin, Пароль: password123')
+    app.run(host='localhost', port=5000)

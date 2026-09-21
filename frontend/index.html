@@ -3,18 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Фронт + Бэк</title>
+    <title>Фронт + Бэк с авторизацией</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        #result { background: #f4f4f4; padding: 20px; border-radius: 8px; max-width: 400px; margin: 20px auto; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .container { max-width: 400px; margin: 0 auto; }
+        .box { background: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px auto; }
+        input { display: block; width: 90%; padding: 10px; margin: 10px auto; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        .hidden { display: none; }
+        .error { color: red; font-size: 14px; }
+        .success { color: green; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h1>Связка Frontend ↔ Backend</h1>
-    <button id="loadBtn">Загрузить данные</button>
-    <div id="result">Нажмите кнопку</div>
+    <div class="container">
+        <h1>Связка Frontend ↔ Backend</h1>
+
+        <!-- Блок авторизации -->
+        <div id="loginSection" class="box">
+            <h2>Вход в систему</h2>
+            <input type="text" id="username" placeholder="Логин (admin)" value="admin">
+            <input type="password" id="password" placeholder="Пароль (password123)" value="password123">
+            <button id="loginBtn">Войти</button>
+            <p id="loginStatus"></p>
+        </div>
+
+        <!-- Блок с данными (скрыт по умолчанию) -->
+        <div id="dataSection" class="hidden">
+            <button id="loadBtn">Загрузить защищенные данные</button>
+            <div id="result" class="box">Нажмите кнопку</div>
+            <button id="logoutBtn" style="background: #dc3545; margin-top: 10px;">Выйти</button>
+        </div>
+    </div>
 
     <script src="site.js"></script>
 </body>
-</html> 
+</html>
