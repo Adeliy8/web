@@ -1,39 +1,21 @@
-from flask import Flask, request, jsonify
+from flask import Flask
+from flask_cors import CORS
 
-app = Flask(__name__)
-
-# Тестовые учётные данные
-VALID_USERNAME = "admin"
-VALID_PASSWORD = "password123"
-SECRET_TOKEN = "my-super-secret-token-12345"
+from config import API_URL_PREFIX
+from controllers.auth_controller import auth_bp
+from controllers.data_controller import data_bp
 
 
-@app.route('/api/login', methods=['POST'])
-def login():
-    creds = request.get_json(silent=True) or {}
-    username = creds.get('username')
-    password = creds.get('password')
-
-    if username == VALID_USERNAME and password == VALID_PASSWORD:
-        return jsonify({'token': SECRET_TOKEN}), 200
-    return jsonify({'error': 'Неверный логин или пароль'}), 401
-
-
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    auth_header = request.headers.get('Authorization')
-
-    if auth_header != f'Bearer {SECRET_TOKEN}':
-        return jsonify({'error': 'Доступ запрещен. Требуется авторизация.'}), 401
-
-    return jsonify({
-        'message': 'Привет от бэкенда! (Данные защищены)',
-        'items': ['Python', 'JavaScript', 'HTTP-сервер', 'HTML', 'Авторизация']
-    }), 200
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
+    app.register_blueprint(auth_bp, url_prefix=API_URL_PREFIX)
+    app.register_blueprint(data_bp, url_prefix=API_URL_PREFIX)
+    return app
 
 
 if __name__ == '__main__':
-    print('Сервер запущен на http://localhost:5000')
-    print('Доступен эндпоинт: http://localhost:5000/api/data')
-    print('Логин: admin, Пароль: password123')
-    app.run(host='localhost', port=5000)
+    app = create_app()
+    print('--- СЕРВЕР ЗАПУЩЕН ---')
+    print('Ссылка: http://127.0.0.1:5000')
+    app.run(host='127.0.0.1', port=5000, debug=True)

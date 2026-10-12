@@ -1,91 +1,94 @@
-console.log('Скрипт загружен!');
-
-// Переменная для хранения токена
-let authToken = null;
-
-const loginSection = document.getElementById('loginSection');
-const dataSection = document.getElementById('dataSection');
-const loginStatus = document.getElementById('loginStatus');
-
-// --- ЛОГИКА АВТОРИЗАЦИИ ---
-document.getElementById('loginBtn').addEventListener('click', async () => {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    
-    loginStatus.textContent = 'Проверка...';
-    loginStatus.className = '';
-
-    try {
-        const response = await fetch('http://localhost:5000/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Ошибка входа');
-        }
-
-        // Успешный вход
-        authToken = data.token;
-        loginStatus.textContent = 'Успешный вход!';
-        loginStatus.className = 'success';
-        
-        // Прячем форму логина, показываем данные
-        setTimeout(() => {
-            loginSection.classList.add('hidden');
-            dataSection.classList.remove('hidden');
-        }, 500);
-
-    } catch (error) {
-        loginStatus.textContent = error.message;
-        loginStatus.className = 'error';
-    }
-});
-
-// --- ЗАГРУЗКА ДАННЫХ ---
-document.getElementById('loadBtn').addEventListener('click', async () => {
+document.addEventListener('DOMContentLoaded', () => {
+    const loginBox = document.getElementById('loginBox');
+    const dataBox = document.getElementById('dataBox');
+    const loginBtn = document.getElementById('loginBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginStatus = document.getElementById('loginStatus');
     const resultDiv = document.getElementById('result');
-    resultDiv.textContent = 'Загрузка...';
 
-    try {
-        const response = await fetch('http://localhost:5000/api/data', {
-            method: 'GET',
-            headers: {
-                // Передаем токен в заголовке
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
+    const API_URL = 'http://127.0.0.1:5000/api';
 
-        if (response.status === 401) {
-            throw new Error('Сессия истекла или доступ запрещен');
-        }
-        if (!response.ok) throw new Error('Ошибка сети');
-
-        const data = await response.json();
-
-        let html = `<p><strong>${data.message}</strong></p><ul>`;
-        data.items.forEach(item => {
-            html += `<li>${item}</li>`;
-        });
-        html += '</ul>';
-        resultDiv.innerHTML = html;
-
-    } catch (error) {
-        resultDiv.textContent = 'Ошибка: ' + error.message;
+    // Проверка токена при загрузке страницы
+    if (localStorage.getItem('token')) {
+        showDashboard();
     }
-});
 
-// --- ВЫХОД ---
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    authToken = null;
-    document.getElementById('password').value = '';
-    loginStatus.textContent = '';
-    dataSection.classList.add('hidden');
-    loginSection.classList.remove('hidden');
-    document.getElementById('result').textContent = 'Нажмите кнопку';
+    // --- ВХОД ---
+    loginBtn.addEventListener('click', async () => {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        loginStatus.textContent = 'Загрузка...';
+        loginStatus.className = 'status-msg';
+
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.token) {
+                localStorage.setItem('token', data.token);
+                loginStatus.textContent = 'Успех!';
+                loginStatus.classList.add('success');
+                setTimeout(showDashboard, 500);
+            } else {
+                loginStatus.textContent = data.error || 'Ошибка входа';
+                loginStatus.classList.add('error');
+            }
+        } catch (error) {
+            // Если сервер выключен или блокирует запрос
+            console.error('Детальная ошибка:', error);
+            loginStatus.textContent = 'Ошибка: Сервер не отвечает (CORS или сервер выключен)';
+            loginStatus.classList.add('error');
+        }
+    });
+
+    // --- ЗАГРУЗКА ДАННЫХ ---
+    loadBtn.addEventListener('click', async () => {
+        const token = localStorage.getItem('token');
+        resultDiv.innerHTML = 'Загрузка...';
+
+        try {
+            const response = await fetch(`${API_URL}/data`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                const items = data.items.map(item => `<li>${item}</li>`).join('');
+                resultDiv.innerHTML = `<strong>${data.message}</strong><ul>${items}</ul>`;
+            } else {
+                resultDiv.innerHTML = `<span class="error">${data.error}</span>`;
+                if (response.status === 401) logout(); // Если токен протух
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<span class="error">Ошибка соединения</span>`;
+        }
+    });
+
+    // --- ВЫХОД ---
+    logoutBtn.addEventListener('click', logout);
+
+    function showDashboard() {
+        loginBox.classList.add('hidden');
+        dataBox.classList.remove('hidden');
+        loginStatus.textContent = '';
+        resultDiv.innerHTML = 'Нажмите "Загрузить данные"';
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        dataBox.classList.add('hidden');
+        loginBox.classList.remove('hidden');
+        document.getElementById('password').value = '';
+        loginStatus.textContent = 'Вы вышли из системы';
+        loginStatus.className = 'status-msg';
+    }
 });
