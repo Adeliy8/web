@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginStatus = document.getElementById('loginStatus');
     const resultDiv = document.getElementById('result');
 
+    // Адрес вашего Flask-сервера
     const API_URL = 'http://127.0.0.1:5000/api';
 
     // Проверка токена при загрузке страницы
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
-        loginStatus.textContent = 'Загрузка...';
+        loginStatus.textContent = 'Проверка данных...';
         loginStatus.className = 'status-msg';
 
         try {
@@ -33,17 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok && data.token) {
                 localStorage.setItem('token', data.token);
-                loginStatus.textContent = 'Успех!';
+                loginStatus.textContent = 'Успешный вход!';
                 loginStatus.classList.add('success');
                 setTimeout(showDashboard, 500);
             } else {
-                loginStatus.textContent = data.error || 'Ошибка входа';
+                loginStatus.textContent = data.error || 'Неверный логин или пароль';
                 loginStatus.classList.add('error');
             }
         } catch (error) {
-            // Если сервер выключен или блокирует запрос
-            console.error('Детальная ошибка:', error);
-            loginStatus.textContent = 'Ошибка: Сервер не отвечает (CORS или сервер выключен)';
+            console.error('Ошибка входа:', error);
+            loginStatus.textContent = 'Сервер недоступен. Запущен ли Python?';
             loginStatus.classList.add('error');
         }
     });
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ЗАГРУЗКА ДАННЫХ ---
     loadBtn.addEventListener('click', async () => {
         const token = localStorage.getItem('token');
-        resultDiv.innerHTML = 'Загрузка...';
+        resultDiv.innerHTML = '<span style="color: #94a3b8;">Загрузка данных с сервера...</span>';
 
         try {
             const response = await fetch(`${API_URL}/data`, {
@@ -66,10 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultDiv.innerHTML = `<strong>${data.message}</strong><ul>${items}</ul>`;
             } else {
                 resultDiv.innerHTML = `<span class="error">${data.error}</span>`;
-                if (response.status === 401) logout(); // Если токен протух
+                if (response.status === 401) logout(); // Если токен недействителен
             }
         } catch (error) {
-            resultDiv.innerHTML = `<span class="error">Ошибка соединения</span>`;
+            console.error('Ошибка данных:', error);
+            resultDiv.innerHTML = `<span class="error">Ошибка соединения. Проверьте сервер.</span>`;
         }
     });
 
@@ -80,15 +81,15 @@ document.addEventListener('DOMContentLoaded', () => {
         loginBox.classList.add('hidden');
         dataBox.classList.remove('hidden');
         loginStatus.textContent = '';
-        resultDiv.innerHTML = 'Нажмите "Загрузить данные"';
     }
 
     function logout() {
         localStorage.removeItem('token');
         dataBox.classList.add('hidden');
         loginBox.classList.remove('hidden');
-        document.getElementById('password').value = '';
+        document.getElementById('password').value = 'password123';
         loginStatus.textContent = 'Вы вышли из системы';
         loginStatus.className = 'status-msg';
+        resultDiv.innerHTML = 'Нажмите кнопку выше, чтобы получить данные с сервера.';
     }
 });

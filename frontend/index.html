@@ -3,77 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авторизация | Frontend ↔ Backend</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-            background-color: #f4f7f6; color: #333;
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; padding: 20px;
-        }
-        .card {
-            background: #ffffff; padding: 30px; border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); text-align: center;
-            width: 100%; max-width: 380px;
-        }
-        .hidden { display: none !important; }
-        h2 { margin-bottom: 20px; color: #1a1a1a; }
-        .input-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-size: 14px; color: #555; }
-        input {
-            width: 100%; padding: 12px; border: 1px solid #ddd;
-            border-radius: 8px; font-size: 15px; outline: none;
-        }
-        input:focus { border-color: #007bff; }
-        button {
-            width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
-            border: none; border-radius: 8px; cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-primary { background: #007bff; color: white; margin-top: 10px; }
-        .btn-primary:hover { background: #0056b3; }
-        .btn-secondary { background: #e9ecef; color: #333; }
-        .btn-secondary:hover { background: #dde0e3; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-danger:hover { background: #c82333; }
-        .button-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .status-msg { margin-top: 15px; font-size: 14px; font-weight: bold; }
-        .error { color: #dc3545; }
-        .success { color: #28a745; }
-        .result-box {
-            background: #f8f9fa; border: 1px solid #e9ecef;
-            border-radius: 8px; padding: 15px; text-align: left;
-            font-size: 14px; min-height: 80px; word-break: break-word;
-        }
-    </style>
+    <title>Панель управления | Secure App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="card" id="loginBox">
-        <h2>Вход в систему</h2>
-        <div class="input-group">
-            <label>Логин</label>
-            <input type="text" id="username" value="admin">
+    <div class="app-container">
+        <!-- ЭКРАН ВХОДА -->
+        <div class="card" id="loginBox">
+            <div class="icon-header">🔒</div>
+            <h2>Вход в систему</h2>
+            <p class="subtitle">Введите данные для доступа</p>
+            
+            <div class="input-group">
+                <label for="username">Логин</label>
+                <input type="text" id="username" placeholder="admin" value="admin" autocomplete="username">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" placeholder="••••••••" value="password123" autocomplete="current-password">
+            </div>
+            
+            <button id="loginBtn" class="btn-primary">Войти</button>
+            <p id="loginStatus" class="status-msg"></p>
         </div>
-        <div class="input-group">
-            <label>Пароль</label>
-            <input type="password" id="password" value="password123">
+
+        <!-- ЭКРАН ДАННЫХ (СКРЫТ) -->
+        <div class="card hidden" id="dataBox">
+            <div class="user-profile">
+                <div class="avatar">A</div>
+                <div>
+                    <h2 style="margin:0; text-align:left;">Администратор</h2>
+                    <p class="subtitle" style="margin:0;">Вы успешно авторизованы</p>
+                </div>
+                <button id="logoutBtn" class="btn-icon" title="Выйти">✖</button>
+            </div>
+
+            <div class="data-section">
+                <button id="loadBtn" class="btn-secondary">Загрузить защищенные данные</button>
+                
+                <div id="result" class="result-box">
+                    Нажмите кнопку выше, чтобы получить данные с сервера.
+                </div>
+            </div>
         </div>
-        <button id="loginBtn" class="btn-primary">Войти</button>
-        <p id="loginStatus" class="status-msg"></p>
     </div>
 
-    <div class="card hidden" id="dataBox">
-        <h2>Панель управления</h2>
-        <div class="button-group">
-            <button id="loadBtn" class="btn-secondary">Загрузить данные</button>
-            <button id="logoutBtn" class="btn-danger">Выйти</button>
-        </div>
-        <div id="result" class="result-box">Нажмите "Загрузить данные"</div>
-    </div>
-
-    <!-- Подключение внешнего JS-файла -->
     <script src="site.js"></script>
 </body>
 </html>
