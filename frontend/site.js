@@ -7,15 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginStatus = document.getElementById('loginStatus');
     const resultDiv = document.getElementById('result');
 
-    // Адрес вашего Flask-сервера
-    const API_URL = 'http://127.0.0.1:5000/api';
+    const API_URL = '/api';
 
-    // Проверка токена при загрузке страницы
     if (localStorage.getItem('token')) {
         showDashboard();
     }
 
-    // --- ВХОД ---
     loginBtn.addEventListener('click', async () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
@@ -48,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- ЗАГРУЗКА ДАННЫХ ---
     loadBtn.addEventListener('click', async () => {
         const token = localStorage.getItem('token');
         resultDiv.innerHTML = '<span style="color: #94a3b8;">Загрузка данных с сервера...</span>';
@@ -74,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- ВЫХОД ---
     logoutBtn.addEventListener('click', logout);
 
     function showDashboard() {
