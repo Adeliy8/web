@@ -5,8 +5,8 @@ from flask import Flask
 from flask_cors import CORS
 
 from config import API_URL_PREFIX
-from controllers.auth_controller import auth_bp
-from controllers.data_controller import data_bp
+from auth.auth_controller import auth_bp
+from data.data_controller import data_bp
 from controllers.frontend_controller import frontend_bp
 
 

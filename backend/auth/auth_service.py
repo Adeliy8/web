@@ -1,6 +1,6 @@
 from werkzeug.security import check_password_hash
 from config import SECRET_TOKEN
-from repositories.user_repository import UserRepository
+from user.user_repository import UserRepository
 
 
 class AuthService:

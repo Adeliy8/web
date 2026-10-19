@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from services.auth_service import AuthService
-from services.data_service import DataService
+from auth.auth_service import AuthService
+from data.data_service import DataService
 
 data_bp = Blueprint('data', __name__)
 auth_service = AuthService()

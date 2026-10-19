@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('token', data.token);
                 loginStatus.textContent = 'Успешный вход!';
                 loginStatus.classList.add('success');
-                setTimeout(showDashboard, 500);
+                setTimeout(showDashboard, 10*1000);
             } else {
                 loginStatus.textContent = data.error || 'Неверный логин или пароль';
                 loginStatus.classList.add('error');
